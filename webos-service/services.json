@@ -1,0 +1,5 @@
+{
+  "id": "com.devgalib.livetv.service",
+  "description": "Live TV+ Home helper",
+  "services": [{ "name": "com.devgalib.livetv.service" }]
+}

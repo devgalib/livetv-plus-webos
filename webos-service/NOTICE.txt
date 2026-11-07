@@ -1,0 +1,2 @@
+pairing.json is the SSAP pairing manifest from lgtv2 (https://github.com/hobbyquaker/lgtv2),
+MIT License, Copyright (c) Sebastian Raff.

@@ -1,0 +1,24 @@
+name: Compatibility report
+description: Tell us how Live TV+ works on your TV model
+labels: [compatibility]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: TV model, webOS version and firmware
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: What works?
+      options:
+        - label: The app installs and plays channels
+        - label: Live TV+ opens by itself after a power cycle
+        - label: The antenna "No signal" screen switches back to Live TV+
+        - label: The Home button brings Live TV+ back
+        - label: Apps open from the dock
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

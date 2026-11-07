@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live TV+</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <video id="video" autoplay playsinline></video>
+
+  <div id="status" class="status hidden">
+    <div class="spinner"></div>
+    <div id="statusText" class="status-text"></div>
+  </div>
+
+  <div id="osd" class="osd hidden">
+    <div class="osd-logo"><img id="osdLogo" alt=""><span id="osdInitials"></span></div>
+    <div class="osd-body">
+      <div class="osd-top"><span id="osdNum" class="osd-num"></span><span id="osdName" class="osd-name"></span><span id="osdFav" class="osd-fav">★</span></div>
+      <div id="osdMeta" class="osd-meta"></div>
+    </div>
+    <div id="osdClock" class="osd-clock"></div>
+  </div>
+
+  <div id="numEntry" class="num-entry hidden"></div>
+
+  <div id="home" class="home hidden">
+    <div class="home-top">
+      <div class="brand">Live TV<span>+</span></div>
+      <div class="home-right"><span id="homeHelper" class="home-helper"></span><span id="homeClock" class="home-clock"></span></div>
+    </div>
+    <div class="home-now"><span class="live">LIVE</span><span id="homeNowName"></span></div>
+    <div class="shelf"><div id="rows" class="rows"></div></div>
+  </div>
+
+  <div id="guide" class="guide hidden">
+    <div class="guide-head">
+      <div class="brand">Live TV<span>+</span></div>
+      <div id="guideClock" class="guide-clock"></div>
+    </div>
+    <div class="guide-cols">
+      <ul id="sections" class="sections"></ul>
+      <div class="list-wrap">
+        <div id="listTitle" class="list-title"></div>
+        <ul id="list" class="list"></ul>
+        <div id="listEmpty" class="list-empty hidden">No favourites yet. Highlight a channel and press the <b class="key yellow">Yellow</b> button.</div>
+        <div id="listPos" class="list-pos"></div>
+      </div>
+    </div>
+    <div class="guide-foot">
+      <span><b class="key">OK</b> Watch</span>
+      <span><b class="key yellow">Yellow</b> Favourite</span>
+      <span><b class="key green">Green</b> Startup channel</span>
+      <span><b class="key">Back</b> Close</span>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="lib/hls.min.js"></script>
+  <script src="channels.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

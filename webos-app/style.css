@@ -1,0 +1,176 @@
+/* Sized in rem off the screen height so the layout is identical at 720p and 1080p. */
+:root {
+  --bg: #0b0d12;
+  --panel: rgba(14, 17, 24, 0.92);
+  --panel-soft: rgba(255, 255, 255, 0.06);
+  --text: #f2f4f8;
+  --muted: #9aa3b2;
+  --accent: #ff4d4f;
+  --select-bg: #f2f4f8;
+  --select-text: #0b0d12;
+  --gold: #ffc53d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: calc(100vh / 36); }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: "LG Smart UI", "Noto Sans", "Noto Sans Bengali", "Noto Sans Devanagari", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  cursor: default; user-select: none;
+}
+ul { list-style: none; }
+.hidden { opacity: 0 !important; visibility: hidden !important; }
+
+#video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
+
+/* Loading / error message in the middle of the screen */
+.status {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 1.6rem 2.4rem; border-radius: 1rem; background: rgba(0, 0, 0, 0.6);
+  transition: opacity 0.25s, visibility 0.25s;
+}
+.status-text { white-space: pre-line; margin-top: 1rem; font-size: 1.1rem; color: var(--text); text-align: center; max-width: 28rem; line-height: 1.5; }
+.status.error .spinner { display: none; }
+.status.error .status-text { margin-top: 0; }
+.spinner {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  border: 0.28rem solid rgba(255, 255, 255, 0.2); border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Channel banner */
+.osd {
+  position: fixed; left: 2.4rem; right: 2.4rem; bottom: 2rem;
+  display: flex; align-items: center;
+  padding: 1rem 1.4rem; border-radius: 1rem; background: var(--panel);
+  transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+}
+.osd.hidden { transform: translateY(1rem); }
+.osd-logo, .row-logo {
+  position: relative; flex: none; display: flex; align-items: center; justify-content: center;
+  background: #fff; border-radius: 0.6rem; overflow: hidden; color: var(--select-text); font-weight: 700;
+}
+.osd-logo { width: 6.4rem; height: 3.8rem; font-size: 1.3rem; }
+.osd-logo img, .row-logo img { max-width: 88%; max-height: 82%; }
+.osd-body { flex: 1; min-width: 0; margin-left: 1.2rem; }
+.osd-top { display: flex; align-items: baseline; white-space: nowrap; }
+.osd-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-right: 0.8rem; }
+.osd-name { font-size: 1.5rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.osd-fav { margin-left: 0.6rem; font-size: 1.2rem; color: var(--gold); }
+.osd-meta { margin-top: 0.3rem; font-size: 0.95rem; color: var(--muted); }
+.osd-clock { flex: none; margin-left: 1.2rem; font-size: 1.4rem; font-weight: 300; color: var(--muted); }
+
+.num-entry {
+  position: fixed; top: 2rem; right: 2.4rem; padding: 0.6rem 1.2rem;
+  border-radius: 0.8rem; background: var(--panel); font-size: 2.4rem; font-weight: 700; letter-spacing: 0.15em;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+/* Channel guide */
+.guide {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 64%;
+  display: flex; flex-direction: column; padding: 1.8rem 2rem 1.4rem 2.4rem;
+  background: linear-gradient(90deg, rgba(11, 13, 18, 0.97) 0%, rgba(11, 13, 18, 0.94) 75%, rgba(11, 13, 18, 0.0) 100%);
+  transition: opacity 0.25s, visibility 0.25s, transform 0.25s;
+}
+.guide.hidden { transform: translateX(-2rem); }
+.guide-head { display: flex; align-items: center; justify-content: space-between; padding-right: 3rem; margin-bottom: 1.2rem; }
+.brand { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; }
+.brand span { color: var(--accent); }
+.guide-clock { font-size: 1.3rem; font-weight: 300; color: var(--muted); }
+.guide-cols { flex: 1; display: flex; min-height: 0; padding-right: 3rem; }
+
+.sections { flex: none; position: relative; width: 13.5rem; margin-right: 1.4rem; overflow: hidden; }
+.sections li {
+  display: flex; justify-content: space-between; align-items: center;
+  height: 2rem; padding: 0 0.9rem; margin-bottom: 0.2rem; border-radius: 0.55rem;
+  font-size: 0.95rem; color: var(--muted); white-space: nowrap;
+}
+.sections li .count { font-size: 0.8rem; opacity: 0.7; }
+.sections li.active { color: var(--text); background: var(--panel-soft); }
+.sections li.head { height: 1.5rem; margin-top: 0.4rem; padding-left: 0.2rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.sections li.head:first-child { margin-top: 0; }
+
+.list-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.list-title { font-size: 1.15rem; font-weight: 600; margin: 0 0 0.6rem 0.4rem; }
+.list { flex: 1; min-height: 0; overflow: hidden; }
+.list li {
+  display: flex; align-items: center; height: 2.8rem; padding: 0 0.9rem; margin-bottom: 0.25rem;
+  border-radius: 0.65rem; transition: background-color 0.12s, color 0.12s;
+}
+.row-num { flex: none; width: 2.8rem; font-size: 1rem; color: var(--muted); font-weight: 600; }
+.row-logo { width: 3.6rem; height: 2.2rem; font-size: 0.8rem; margin-right: 0.9rem; }
+.row-name { flex: 1; min-width: 0; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-tags { flex: none; margin-left: 0.6rem; font-size: 0.95rem; }
+.row-tags .fav { color: var(--gold); }
+.row-tags .start { color: var(--accent); font-size: 0.75rem; font-weight: 700; border: 0.08rem solid currentColor; border-radius: 0.3rem; padding: 0.05rem 0.35rem; margin-left: 0.4rem; }
+.list li.playing .row-name { color: var(--accent); }
+.list li.playing .row-name:before { content: "\25B6\00a0"; font-size: 0.8rem; }
+
+/* Focus: only the column the remote is in shows a solid highlight */
+.focus-sections .sections li.active { background: var(--select-bg); color: var(--select-text); }
+.focus-list .list li.selected { background: var(--select-bg); color: var(--select-text); }
+.focus-list .list li.selected .row-num { color: var(--select-text); }
+.focus-list .list li.selected.playing .row-name { color: var(--accent); }
+.list li.selected { background: var(--panel-soft); }
+
+.list-empty.hidden { display: none; }
+.list-empty { margin: 1rem 0.4rem; font-size: 1.05rem; color: var(--muted); line-height: 1.7; }
+.list-pos { height: 1.4rem; margin: 0.3rem 0.4rem 0; font-size: 0.85rem; color: var(--muted); }
+
+.guide-foot { display: flex; padding-top: 0.8rem; font-size: 0.85rem; color: var(--muted); }
+.guide-foot span { margin-right: 1.6rem; white-space: nowrap; }
+.key {
+  display: inline-block; min-width: 1.6rem; padding: 0.1rem 0.45rem; margin-right: 0.35rem;
+  border-radius: 0.35rem; background: var(--panel-soft); color: var(--text); font-weight: 700; font-size: 0.8rem; text-align: center;
+}
+.key.yellow { background: #d4a106; color: #111; }
+.key.green { background: #2e9e4f; color: #fff; }
+
+.toast {
+  position: fixed; left: 50%; top: 2rem; transform: translateX(-50%);
+  padding: 0.7rem 1.4rem; border-radius: 2rem; background: var(--panel);
+  font-size: 1.05rem; white-space: nowrap;
+  transition: opacity 0.25s, visibility 0.25s;
+}
+
+/* Home screen: live channel behind, a dock row of apps and channel rows on top */
+.home {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 22%, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0.82) 58%, rgba(0, 0, 0, 0.96) 100%);
+  transition: opacity 0.35s, visibility 0.35s;
+}
+.home-top { position: absolute; top: 1.6rem; left: 2.6rem; right: 2.6rem; display: flex; align-items: center; justify-content: space-between; }
+.home-right { display: flex; align-items: center; }
+.home-clock { font-size: 1.6rem; font-weight: 300; }
+.home-helper { margin-right: 1.4rem; font-size: 0.85rem; color: var(--gold); }
+.home-now { position: absolute; left: 2.6rem; top: 13.2rem; display: flex; align-items: center; font-size: 1.3rem; font-weight: 600; text-shadow: 0 0.1rem 0.4rem rgba(0, 0, 0, 0.8); }
+.home-now .live { margin-right: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 0.3rem; background: var(--accent); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; }
+.shelf { position: absolute; left: 0; right: 0; top: 15.6rem; bottom: 0; overflow: hidden; }
+.rows { transition: transform 0.3s ease; }
+.shelf-row { height: 10.2rem; padding-left: 2.6rem; }
+.shelf-row-title { height: 1.9rem; font-size: 1rem; font-weight: 600; color: var(--muted); transition: color 0.2s; }
+.shelf-row.current .shelf-row-title { color: var(--text); }
+.tiles { white-space: nowrap; transition: transform 0.3s ease; }
+.tile { display: inline-block; vertical-align: top; width: 10.4rem; margin-right: 1.1rem; }
+.tile-art {
+  position: relative; height: 5.85rem; border-radius: 0.9rem; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: #1c2029; transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tile-art img { max-width: 62%; max-height: 62%; }
+.tile.channel .tile-art, .tile.app .tile-art { background: #f2f4f8; color: var(--select-text); }
+.tile.channel .tile-art img { max-width: 78%; max-height: 70%; }
+.tile-initials { font-size: 1.6rem; font-weight: 700; }
+.tile-glyph { font-size: 2.2rem; }
+.tile.action .tile-art { background: rgba(255, 255, 255, 0.12); }
+.tile-name { margin-top: 0.6rem; font-size: 0.9rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; transition: color 0.2s; }
+.tile .live-dot { position: absolute; top: 0.45rem; right: 0.5rem; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--accent); }
+.tile .fav-mark { position: absolute; top: 0.25rem; left: 0.5rem; color: var(--gold); font-size: 0.9rem; }
+.tile.focus .tile-art { transform: scale(1.1); box-shadow: 0 0 0 0.2rem #fff, 0 0.6rem 1.6rem rgba(0, 0, 0, 0.6); }
+.tile.focus .tile-name { color: var(--text); }
+body.home-open .status { top: 30%; }

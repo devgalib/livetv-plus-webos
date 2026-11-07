@@ -1,0 +1,25 @@
+name: Channel issue or removal request
+description: A broken or miscategorised channel, or a request from a channel owner to remove a channel
+labels: [channels]
+body:
+  - type: input
+    id: channel
+    attributes:
+      label: Channel name and number
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What's wrong?
+      options:
+        - Stream doesn't play
+        - Wrong category or country
+        - Inappropriate content for its category
+        - I own this channel and want it removed
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details

@@ -1,0 +1,47 @@
+{
+  "name": "livetv-plus-webos",
+  "version": "1.1.0",
+  "description": "A clean live-TV home screen for LG webOS TVs: opens on a news channel instead of \"No signal\", with an app dock and News/Kids/Movies/Music rows. No root needed.",
+  "keywords": [
+    "webos",
+    "lg",
+    "lg-tv",
+    "webos-tv",
+    "iptv",
+    "live-tv",
+    "launcher",
+    "home-screen",
+    "hls",
+    "bangladesh",
+    "india",
+    "news"
+  ],
+  "homepage": "https://github.com/devgalib/livetv-plus-webos#readme",
+  "bugs": {
+    "url": "https://github.com/devgalib/livetv-plus-webos/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devgalib/livetv-plus-webos.git"
+  },
+  "license": "MIT",
+  "author": "Asadullah Hil Galib",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "channels": "node scripts/build-channels.mjs",
+    "package": "cp node_modules/hls.js/dist/hls.min.js webos-app/lib/ && rm -rf dist && ares-package webos-app webos-service -o dist",
+    "install-tv": "ares-install --device tv dist/*.ipk && ares-launch --device tv com.devgalib.livetv",
+    "start": "python3 -m http.server 8090 -d webos-app"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@webos-tools/cli": "^3.2.6",
+    "acorn": "^8.19.0",
+    "hls.js": "^1.7.4",
+    "lgtv2": "^2.1.0"
+  }
+}

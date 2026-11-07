@@ -1,0 +1,34 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: TV model and webOS version
+      description: Settings → General → About This TV, e.g. "32LM636BPTB, webOS 4.5, 05.40.97"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Live TV+ version
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you pressed, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Helper log (optional)
+      description: Output of the helper log command in the README. Remove anything private.
+      render: text
+  - type: markdown
+    attributes:
+      value: "Never post your Developer Mode passphrase, SSH key or `tools/.tvkey`."

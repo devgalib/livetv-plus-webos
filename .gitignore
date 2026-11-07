@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.ipk
+
+# Per-TV secrets and state: pairing keys, MAC addresses, helper state and logs
+tools/.tvkey
+tools/.tvkey*
+.tvkey*
+state.json
+helper.log*
+*.pem
+*.key
+.env
+.env.*
+
+# Editor / OS / local tool settings
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+*.log
