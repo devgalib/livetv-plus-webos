@@ -1,6 +1,6 @@
 {
   "name": "livetv-plus-webos",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A clean live-TV home screen for LG webOS TVs: opens on a news channel instead of \"No signal\", with an app dock and News/Kids/Movies/Music rows. No root needed.",
   "keywords": [
     "webos",

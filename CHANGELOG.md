@@ -4,7 +4,7 @@ All notable changes to this project are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.1.1] - 2026-11-10
 
 ### Fixed
 - After the TV restarted, the Home helper could not save its state and reopened Live TV+ every
@@ -33,4 +33,5 @@ All notable changes to this project are listed here. The format follows
   startup channel that falls back to other news channels when off air.
 - Channel builder that test-plays every iptv-org stream before keeping it.
 
+[1.1.1]: https://github.com/devgalib/livetv-plus-webos/releases/tag/v1.1.1
 [1.1.0]: https://github.com/devgalib/livetv-plus-webos/releases/tag/v1.1.0
