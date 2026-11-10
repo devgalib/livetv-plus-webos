@@ -16,7 +16,15 @@ var Service = require('webos-service');
 var APP_ID = 'com.devgalib.livetv';
 var SERVICE_ID = APP_ID + '.service';
 var STATE_FILE = __dirname + '/state.json';
+// After a reboot webOS may run the service as a user that can rewrite existing files in its
+// folder but not create new ones, so state falls back to /tmp, and the "already opened this boot"
+// mark lives in /tmp (cleared at every boot).
+var TMP_STATE_FILE = '/tmp/' + APP_ID + '.state.json';
+var BOOT_MARK = '/tmp/' + APP_ID + '.boot';
 var LOG_FILE = __dirname + '/helper.log';
+// Opening the app at boot only happens this soon after power-on, so it can never pull you out
+// of another app later, whatever the state files say.
+var BOOT_WINDOW_S = 300;
 // Screens that Live TV+ replaces. com.webos.app.livetv is the antenna input that shows
 // "No signal" / "Not programmed" on a TV without an aerial.
 var REPLACE = ['com.webos.app.livetv', 'com.webos.app.home', 'com.webos.app.fullhome'];
@@ -28,17 +36,32 @@ var service = new Service(SERVICE_ID);
 var keepAlive = null;
 
 // ---------- state & log ----------
-function readState() {
-  try { return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); } catch (e) { return { enabled: true }; }
+var memState = null;
+function readJson(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return null; }
 }
+function readState() {
+  if (!memState) {
+    var main = readJson(STATE_FILE);
+    var tmp = readJson(TMP_STATE_FILE);
+    memState = (tmp && (!main || (tmp.savedAt || 0) > (main.savedAt || 0)) ? tmp : main) || { enabled: true };
+  }
+  return memState;
+}
+// Returns true when the state reached a file.
 function writeState(patch) {
   var s = readState();
   for (var k in patch) if (patch.hasOwnProperty(k)) s[k] = patch[k];
+  s.savedAt = Date.now();
+  var text = JSON.stringify(s);
   try {
-    fs.writeFileSync(STATE_FILE + '.tmp', JSON.stringify(s));
+    fs.writeFileSync(STATE_FILE + '.tmp', text);
     fs.renameSync(STATE_FILE + '.tmp', STATE_FILE);
-  } catch (e) { log('state write failed: ' + e); }
-  return s;
+    return true;
+  } catch (e) { /* folder not writable: rewrite the existing file in place */ }
+  try { fs.writeFileSync(STATE_FILE, text); return true; } catch (e) { /* file not writable either */ }
+  try { fs.writeFileSync(TMP_STATE_FILE, text); return true; } catch (e) { log('state write failed: ' + e); }
+  return false;
 }
 function log(text) {
   try {
@@ -50,6 +73,28 @@ function log(text) {
 }
 function bootId() {
   try { return fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim(); } catch (e) { return ''; }
+}
+function uptimeSeconds() {
+  try { return parseFloat(fs.readFileSync('/proc/uptime', 'utf8')); } catch (e) { return Infinity; }
+}
+
+// ---------- once per boot ----------
+var openedBoot = '';
+function openedThisBoot(boot) {
+  if (openedBoot === boot) return true;
+  try {
+    if (fs.readFileSync(BOOT_MARK, 'utf8').trim() === boot) { openedBoot = boot; return true; }
+  } catch (e) { /* no mark yet */ }
+  if (readState().lastBoot === boot) { openedBoot = boot; return true; }
+  return false;
+}
+// Remembers that Live TV+ was opened for this boot. Returns false when nothing could be saved.
+function markOpened(boot) {
+  openedBoot = boot;
+  var saved = false;
+  try { fs.writeFileSync(BOOT_MARK, boot); saved = true; } catch (e) { log('boot mark failed: ' + e); }
+  if (writeState({ lastBoot: boot })) saved = true;
+  return saved;
 }
 function paused() {
   return Date.now() < (readState().pausedUntil || 0);
@@ -237,7 +282,10 @@ function onForeground(appId) {
 var coveredTimer = null;
 function onCovered() {
   clearTimeout(coveredTimer);
-  var checks = [1200, 2500];
+  // Another app can take ~2.5 s to become the foreground app on webOS 4.5; only a cover that is
+  // still there after 3.5 s counts as LG Home.
+  log('app hidden, checking for LG Home');
+  var checks = [1500, 2000];
   function check() {
     var delay = checks.shift();
     coveredTimer = setTimeout(function () {
@@ -330,7 +378,7 @@ service.register('start', function (m) {
     scheduleBootTimer(function (r) { if (r && r.returnValue) writeState({ bootTimer: true }); });
   }
   // Opening the app counts as "the app is up for this boot".
-  writeState({ lastBoot: bootId() });
+  markOpened(bootId());
   m.respond(status());
 });
 
@@ -346,12 +394,14 @@ service.register('tick', function (m) {
   var state = readState();
   var boot = bootId();
   var result = { skipped: true };
-  if (state.enabled !== false && boot && state.lastBoot !== boot) {
-    // Save first, so a crash during launch can never cause a launch loop.
-    writeState({ lastBoot: boot, pausedUntil: 0 });
-    log('new boot, launching');
-    result = { launched: true };
-    launch(APP_ID, { from: 'boot' }, function (err) { if (err) log('boot launch failed: ' + err); });
+  if (state.enabled !== false && boot && !openedThisBoot(boot) && uptimeSeconds() < BOOT_WINDOW_S) {
+    // Save first and only launch if that worked, so a launch can never repeat.
+    if (markOpened(boot)) {
+      writeState({ pausedUntil: 0 });
+      log('new boot, launching');
+      result = { launched: true };
+      launch(APP_ID, { from: 'boot' }, function (err) { if (err) log('boot launch failed: ' + err); });
+    } else log('new boot, but nothing could be saved: not launching');
   }
   if (m.payload && m.payload.$activity && m.activity) {
     service.activityManager.complete(m.activity, { restart: true }, function () {
